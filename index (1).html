@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tareas · Familia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+  :root {
+    --bg:#f5f3ef;--surface:#fff;--surface2:#f0ede8;--border:#e2ddd7;
+    --text:#1a1814;--text2:#6b6560;--text3:#a09b95;
+    --mama:#3C3489;--mama-bg:#EEEDFE;
+    --andres:#085041;--andres-bg:#E1F5EE;
+    --nico:#633806;--nico-bg:#FAEEDA;
+    --pablo:#712B13;--pablo-bg:#FAECE7;
+    --green:#27500A;--green-bg:#EAF3DE;
+    --wa:#128C7E;--radius:12px;--radius-sm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .logo{font-size:17px;font-weight:600;letter-spacing:-.3px;}
+  .logo span{color:var(--text2);font-weight:400;}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;display:inline-block;margin-left:8px;transition:background 0.3s;}
+  .sync-dot.ok{background:#4caf50;}
+  .sync-dot.err{background:#e53935;}
+  .sync-dot.loading{background:#ff9800;}
+  .nav{display:flex;gap:3px;background:var(--surface2);border-radius:var(--radius-sm);padding:3px;border:1px solid var(--border);}
+  .nav-btn{background:none;border:none;padding:6px 11px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .nav-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  main{max-width:700px;margin:0 auto;padding:20px 16px 60px;}
+  .section{display:none;}.section.active{display:block;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:13px;font-weight:500;}
+  .badge-mama{background:var(--mama-bg);color:var(--mama);}
+  .badge-andres{background:var(--andres-bg);color:var(--andres);}
+  .badge-nico{background:var(--nico-bg);color:var(--nico);}
+  .badge-pablo{background:var(--pablo-bg);color:var(--pablo);}
+  .badge-none{background:var(--surface2);color:var(--text3);}
+  .avatar{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+  .av-mama{background:var(--mama-bg);color:var(--mama);}
+  .av-andres{background:var(--andres-bg);color:var(--andres);}
+  .av-nico{background:var(--nico-bg);color:var(--nico);}
+  .av-pablo{background:var(--pablo-bg);color:var(--pablo);}
+  select,button{font-family:inherit;}
+  .select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;color:var(--text);cursor:pointer;outline:none;}
+  .btn{background:var(--text);color:var(--surface);border:none;border-radius:var(--radius-sm);padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s;}
+  .btn:hover{opacity:.85;}
+  .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+  .btn-ghost:hover{background:var(--border);opacity:1;}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  .btn-wa{background:var(--wa);color:white;border:none;border-radius:var(--radius-sm);padding:7px 13px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s;text-decoration:none;}
+  .btn-wa:hover{opacity:.88;}
+  .btn-wa svg{width:15px;height:15px;fill:white;flex-shrink:0;}
+  .step-chain{display:flex;flex-direction:column;}
+  .step{display:flex;gap:14px;}
+  .step-left{display:flex;flex-direction:column;align-items:center;width:34px;flex-shrink:0;}
+  .step-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;border:2px solid var(--border);background:var(--surface);color:var(--text3);transition:all .2s;}
+  .step-dot.done{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+  .step-dot.cur{background:var(--text);border-color:var(--text);color:var(--surface);}
+  .step-line{width:2px;flex:1;background:var(--border);margin:4px 0;min-height:20px;}
+  .step-line.done{background:var(--green);}
+  .step-body{flex:1;padding-bottom:20px;}
+  .step-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+  .step-note{font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.4;}
+  .step-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .done-line{font-size:12px;color:var(--green);font-weight:500;margin-top:6px;}
+  .waiting{font-size:12px;color:var(--text3);font-style:italic;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--surface);padding:11px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .rota-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;}
+  .week-cell{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
+  .week-cell.cur{border-color:var(--text);background:var(--surface);}
+  .week-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .week-cell.cur .week-label{color:var(--text2);font-weight:600;}
+  .week-person{font-size:14px;font-weight:600;margin-top:4px;}
+  .week-done{font-size:10px;color:var(--green);font-weight:600;margin-top:4px;}
+  .divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+  .cocina-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+  .cocina-item:last-child{border-bottom:none;}
+  .cocina-cb{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:11px;}
+  .cocina-cb.on{background:var(--text);border-color:var(--text);color:white;}
+  .log-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .log-row:last-child{border-bottom:none;}
+  .log-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:72px;}
+  .log-task{flex:1;color:var(--text2);}
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+  .stat-cell{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+  .stat-num{font-size:24px;font-weight:600;line-height:1;margin:6px 0 3px;}
+  .stat-label{font-size:11px;color:var(--text3);font-weight:500;}
+  .maleta-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .maleta-info{display:flex;align-items:center;gap:10px;}
+  .time-chip{background:var(--nico-bg);color:var(--nico);font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;font-family:'DM Mono',monospace;}
+  .restrict{font-size:11px;color:var(--text3);font-style:italic;margin-top:6px;}
+  .hint{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.5;}
+  .empty{text-align:center;padding:28px 0;color:var(--text3);font-size:14px;}
+  .loading-overlay{position:fixed;inset:0;background:rgba(245,243,239,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:12px;font-size:14px;color:var(--text2);}
+  .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media(max-width:500px){.rota-grid{grid-template-columns:repeat(2,1fr);}.stat-row{grid-template-columns:repeat(2,1fr);}.nav-btn{padding:6px 8px;font-size:12px;}}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="overlay">
+  <div class="spinner"></div>
+  <span>Cargando datos…</span>
+</div>
+
+<header>
+  <div class="logo">Tareas <span>familia</span> <span class="sync-dot" id="sync-dot" title="Estado de sincronización"></span></div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('ropa')">Ropa</button>
+    <button class="nav-btn" onclick="showTab('cuartos')">Cuartos</button>
+    <button class="nav-btn" onclick="showTab('cocina')">Cocina</button>
+    <button class="nav-btn" onclick="showTab('log')">Historial</button>
+  </div>
+</header>
+
+<main>
+  <div id="tab-ropa" class="section active">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Cadena de la ropa</span>
+        <button class="btn btn-ghost btn-sm" onclick="resetWash()">↺ Nueva colada</button>
+      </div>
+      <div class="step-chain" id="wash-chain"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Maletas a la abuela · Lunes</span></div>
+      <div class="maleta-row">
+        <div class="maleta-info"><span class="time-chip">12:00</span><span style="font-size:14px;font-weight:500">Llevar maletas</span></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span id="llevar-badge"></span>
+          <select class="select" id="llevar-sel" onchange="saveMaleta('llevar')">
+            <option value="">Asignar…</option>
+            <option value="Mamá">Mamá</option>
+            <option value="Andrés">Andrés</option>
+          </select>
+          <a id="llevar-wa" class="btn-wa" style="display:none" href="#" target="_blank"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Avisar</a>
+        </div>
+      </div>
+      <div class="maleta-row">
+        <div class="maleta-info"><span class="time-chip">16:00</span><span style="font-size:14px;font-weight:500">Recoger maletas</span></div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span id="recoger-badge"></span>
+          <select class="select" id="recoger-sel" onchange="saveMaleta('recoger')">
+            <option value="">Asignar…</option>
+            <option value="Mamá">Mamá</option>
+            <option value="Andrés">Andrés</option>
+          </select>
+          <a id="recoger-wa" class="btn-wa" style="display:none" href="#" target="_blank"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Avisar</a>
+        </div>
+      </div>
+      <p class="restrict">Solo puede ser Mamá o Andrés</p>
+    </div>
+  </div>
+
+  <div id="tab-cuartos" class="section">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Barrer y fregar · Rotativo semanal</span></div>
+      <div class="rota-grid" id="cuartos-grid"></div>
+      <hr class="divider">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn" onclick="markCuartosDone()">✓ Hecho esta semana</button>
+        <a id="cuartos-wa" class="btn-wa" href="#" target="_blank" style="display:none"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Avisar al siguiente</a>
+      </div>
+      <p class="hint">Al marcar como hecho aparece el botón para avisar a quien toca la semana que viene.</p>
+    </div>
+  </div>
+
+  <div id="tab-cocina" class="section">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Limpieza pendiente de cocina</span>
+        <button class="btn btn-ghost btn-sm" onclick="skipCocina()">Saltar turno →</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <span style="font-size:13px;color:var(--text2)">Le toca ahora a:</span>
+        <span id="cocina-person"></span>
+      </div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px">Marca lo que ha quedado sin limpiar:</p>
+      <div id="cocina-list"></div>
+      <hr class="divider">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn" onclick="saveCocina()">✓ Registrar y pasar turno</button>
+        <a id="cocina-wa" class="btn-wa" href="#" target="_blank" style="display:none"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Avisar al siguiente</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-log" class="section">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Tareas por persona</span>
+        <button class="btn btn-ghost btn-sm" onclick="clearLog()">Borrar todo</button>
+      </div>
+      <div class="stat-row" id="stats-row"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Historial</span></div>
+      <div id="log-list"></div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const JSONBIN_KEY = '$2a$10$y2ag8kF0Sn4H6CHtxiwDVefitMG.4znV2TZ/xa6s6czscBXiOZEkO';
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/bins';
+const BIN_KEY = 'fam_bin_id';
+
+const PEOPLE = ['Mamá','Andrés','Nico','Pablo'];
+const KEYS = {'Mamá':'mama','Andrés':'andres','Nico':'nico','Pablo':'pablo'};
+const EMOJIS = {'Mamá':'👩','Andrés':'👨','Nico':'🧒','Pablo':'👦'};
+
+const WASH_STEPS = [
+  {title:'Meter ropa en la lavadora',emoji:'🧺',note:'Avisa al siguiente para colgar',avisa:'colgar la ropa'},
+  {title:'Colgar la ropa',emoji:'👕',note:'Avisa al siguiente para recoger (aprox. 1 día)',avisa:'recoger la ropa y meterla en la maleta'},
+  {title:'Recoger y meter en la maleta',emoji:'🧳',note:'Avisa al siguiente',avisa:'llevar las maletas'},
+  {title:'Llevar maletas a la entrada',emoji:'🚗',note:'Solo Mamá o Andrés · entregar a la abuela el lunes 12:00',restrict:['Mamá','Andrés'],avisa:null}
+];
+const COCINA_ITEMS = ['Sartenes','Ollas','Platos','Vasos y tazas','Encimera','Mesa'];
+
+let BIN_ID = localStorage.getItem(BIN_KEY) || null;
+let S = null;
+let saving = false;
+
+const dot = document.getElementById('sync-dot');
+function syncDot(state){ dot.className='sync-dot '+state; }
+
+async function initBin(){
+  if(BIN_ID){
+    await loadFromBin();
+  } else {
+    const defaultState = {
+      wash:{people:[null,null,null,null],done:[false,false,false,false]},
+      maletas:{llevar:'',recoger:''},
+      cuartosOff:0, cuartosWeekDone:{},
+      cocinaIdx:0, cocinaChecked:[],
+      log:[]
+    };
+    try {
+      syncDot('loading');
+      const r = await fetch(JSONBIN_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY,'X-Bin-Name':'tareas-familia','X-Bin-Private':'false'},
+        body: JSON.stringify(defaultState)
+      });
+      const d = await r.json();
+      BIN_ID = d.metadata.id;
+      localStorage.setItem(BIN_KEY, BIN_ID);
+      S = defaultState;
+      syncDot('ok');
+    } catch(e){
+      syncDot('err');
+      S = defaultState;
+    }
+    hideOverlay();
+    renderAll();
+  }
+}
+
+async function loadFromBin(){
+  try {
+    syncDot('loading');
+    const r = await fetch(`${JSONBIN_URL}/${BIN_ID}/latest`, {
+      headers:{'X-Master-Key':JSONBIN_KEY}
+    });
+    const d = await r.json();
+    S = d.record;
+    if(!S.wash) S.wash={people:[null,null,null,null],done:[false,false,false,false]};
+    if(!S.maletas) S.maletas={llevar:'',recoger:''};
+    if(!S.cuartosOff) S.cuartosOff=0;
+    if(!S.cuartosWeekDone) S.cuartosWeekDone={};
+    if(!S.cocinaIdx) S.cocinaIdx=0;
+    if(!S.cocinaChecked) S.cocinaChecked=[];
+    if(!S.log) S.log=[];
+    syncDot('ok');
+  } catch(e){
+    syncDot('err');
+    S = {wash:{people:[null,null,null,null],done:[false,false,false,false]},maletas:{llevar:'',recoger:''},cuartosOff:0,cuartosWeekDone:{},cocinaIdx:0,cocinaChecked:[],log:[]};
+  }
+  hideOverlay();
+  renderAll();
+}
+
+async function save(){
+  if(!BIN_ID || saving) return;
+  saving = true;
+  syncDot('loading');
+  try {
+    await fetch(`${JSONBIN_URL}/${BIN_ID}`, {
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+      body: JSON.stringify(S)
+    });
+    syncDot('ok');
+  } catch(e){
+    syncDot('err');
+    toast('Error al guardar ⚠️');
+  }
+  saving = false;
+}
+
+function hideOverlay(){ document.getElementById('overlay').style.display='none'; }
+
+function renderAll(){
+  renderWash(); renderMaletas(); renderCuartos(); renderCocina();
+  const active = document.querySelector('.section.active');
+  if(active && active.id==='tab-log') renderLog();
+}
+
+setInterval(loadFromBin, 30000);
+
+function waLink(msg){ return 'https://wa.me/?text='+encodeURIComponent(msg); }
+
+function badge(name){
+  if(!name) return '<span class="badge badge-none">Sin asignar</span>';
+  return `<span class="badge badge-${KEYS[name]}">${EMOJIS[name]} ${name}</span>`;
+}
+function avatar(name){
+  return `<div class="avatar av-${KEYS[name]}">${name.slice(0,2).toUpperCase()}</div>`;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function addLog(task,person){
+  const now=new Date();
+  const d=now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'});
+  const h=now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  S.log.unshift({task,person,time:d+' '+h});
+  if(S.log.length>60) S.log=S.log.slice(0,60);
+}
+function getWeekNum(){
+  const now=new Date(),jan1=new Date(now.getFullYear(),0,1);
+  return Math.ceil(((now-jan1)/86400000+jan1.getDay()+1)/7);
+}
+
+function showTab(t){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  const idx=['ropa','cuartos','cocina','log'].indexOf(t);
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  if(t==='ropa'){renderWash();renderMaletas();}
+  if(t==='cuartos') renderCuartos();
+  if(t==='cocina') renderCocina();
+  if(t==='log') renderLog();
+  loadFromBin();
+}
+
+function makeWaBtn(href,label){
+  return `<a class="btn-wa" href="${href}" target="_blank"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> ${label}</a>`;
+}
+
+function renderWash(){
+  if(!S) return;
+  const chain=document.getElementById('wash-chain');
+  chain.innerHTML='';
+  WASH_STEPS.forEach((step,i)=>{
+    const done=S.wash.done[i];
+    const person=S.wash.people[i];
+    const isLast=i===WASH_STEPS.length-1;
+    const prevDone=i===0||S.wash.done[i-1];
+    const opts=step.restrict||PEOPLE;
+    let dotClass=done?'done':(!done&&prevDone?'cur':'');
+    let personHtml='';
+    if(done) personHtml=badge(person);
+    else if(prevDone||person){
+      personHtml=`<select class="select" onchange="assignWash(${i},this.value)"><option value="">Asignar…</option>${opts.map(p=>`<option value="${p}"${person===p?' selected':''}>${EMOJIS[p]} ${p}</option>`).join('')}</select>`;
+    } else personHtml=`<span class="waiting">Esperando paso anterior…</span>`;
+    let actionHtml='';
+    if(!done&&person&&prevDone){
+      let waBtn='';
+      if(WASH_STEPS[i+1]&&step.avisa){
+        const nextP=S.wash.people[i+1]||'el siguiente';
+        const msg=`${step.emoji} *${person}* ha completado: _${step.title}_\n\n👉 ${nextP}, te toca: *${WASH_STEPS[i+1].title}* ${WASH_STEPS[i+1].emoji}`;
+        waBtn=makeWaBtn(waLink(msg),'Avisar al siguiente');
+      }
+      actionHtml=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn-sm" onclick="doneWash(${i})">✓ Marcar como hecho</button>${waBtn}</div>`;
+    }
+    chain.innerHTML+=`<div class="step"><div class="step-left"><div class="step-dot ${dotClass}">${done?'✓':(i+1)}</div>${!isLast?`<div class="step-line ${done?'done':''}"></div>`:''}</div><div class="step-body"><div class="step-name">${step.emoji} ${step.title}</div><div class="step-note">${step.note}</div><div class="step-actions">${personHtml}</div>${actionHtml}${done?`<div class="done-line">✓ Hecho por ${person}</div>`:''}</div></div>`;
+  });
+}
+
+function assignWash(i,val){
+  S.wash.people[i]=val||null; save(); renderWash();
+}
+function doneWash(i){
+  if(!S.wash.people[i]) return;
+  S.wash.done[i]=true;
+  addLog(WASH_STEPS[i].title,S.wash.people[i]);
+  save(); renderWash(); toast('Paso marcado ✓');
+}
+function resetWash(){
+  if(!confirm('¿Empezar nueva colada?')) return;
+  S.wash={people:[null,null,null,null],done:[false,false,false,false]};
+  save(); renderWash(); toast('Nueva colada iniciada');
+}
+
+function saveMaleta(tipo){
+  const val=document.getElementById(tipo+'-sel').value;
+  S.maletas[tipo]=val;
+  if(val) addLog(tipo==='llevar'?'Llevar maletas (lunes 12:00)':'Recoger maletas (lunes 16:00)',val);
+  save(); renderMaletas(); if(val) toast(`${val} asignada/o ✓`);
+}
+function renderMaletas(){
+  if(!S) return;
+  [['llevar','🧳','llevar las maletas a la abuela a las 12:00 del lunes'],['recoger','📦','recoger las maletas de la abuela a las 16:00']].forEach(([tipo,em,label])=>{
+    const person=S.maletas[tipo];
+    const bEl=document.getElementById(tipo+'-badge');
+    const wEl=document.getElementById(tipo+'-wa');
+    const sel=document.getElementById(tipo+'-sel');
+    if(bEl) bEl.innerHTML=person?badge(person):'';
+    if(sel&&person) sel.value=person;
+    if(wEl){
+      if(person){
+        const msg=`${em} *Recordatorio maletas*\n\n${EMOJIS[person]} *${person}*, te toca: _${label}_\n\n¡Gracias!`;
+        wEl.href=waLink(msg); wEl.style.display='inline-flex';
+      } else wEl.style.display='none';
+    }
+  });
+}
+
+function renderCuartos(){
+  if(!S) return;
+  const grid=document.getElementById('cuartos-grid');
+  const wk=getWeekNum();
+  const labels=['Esta sem.','Próx. sem.','En 2 sem.','En 3 sem.'];
+  grid.innerHTML='';
+  for(let w=0;w<4;w++){
+    const idx=(S.cuartosOff+w)%4;
+    const person=PEOPLE[idx];
+    const done=S.cuartosWeekDone[wk+w];
+    grid.innerHTML+=`<div class="week-cell ${w===0?'cur':''}"><div class="week-label">${labels[w]}</div>${avatar(person)}<div class="week-person">${person}</div>${done&&w===0?'<div class="week-done">✓ Hecho</div>':''}</div>`;
+  }
+  const wEl=document.getElementById('cuartos-wa');
+  if(wEl){
+    const nextP=PEOPLE[(S.cuartosOff+1)%4];
+    const msg=`🧹 *Cuartos · semana que viene*\n\n${EMOJIS[nextP]} *${nextP}*, te toca barrer y fregar toda la casa la semana que viene.\n\n¡Gracias!`;
+    wEl.href=waLink(msg);
+  }
+}
+function markCuartosDone(){
+  const wk=getWeekNum();
+  const person=PEOPLE[S.cuartosOff%4];
+  S.cuartosWeekDone[wk]=true;
+  S.cuartosOff++;
+  addLog('Barrer y fregar la casa',person);
+  save(); renderCuartos();
+  document.getElementById('cuartos-wa').style.display='inline-flex';
+  toast(`${person} ha completado los cuartos ✓`);
+}
+
+function renderCocina(){
+  if(!S) return;
+  const person=PEOPLE[S.cocinaIdx%4];
+  document.getElementById('cocina-person').innerHTML=badge(person);
+  const list=document.getElementById('cocina-list');
+  list.innerHTML='';
+  COCINA_ITEMS.forEach(item=>{
+    const on=S.cocinaChecked.includes(item);
+    list.innerHTML+=`<div class="cocina-item" onclick="toggleCocina('${item}')"><div class="cocina-cb ${on?'on':''}">${on?'✓':''}</div><span style="font-size:14px">${item}</span></div>`;
+  });
+  document.getElementById('cocina-wa').style.display='none';
+}
+function toggleCocina(item){
+  const i=S.cocinaChecked.indexOf(item);
+  if(i>=0) S.cocinaChecked.splice(i,1); else S.cocinaChecked.push(item);
+  save(); renderCocina();
+}
+function saveCocina(){
+  if(!S.cocinaChecked.length){ toast('Marca al menos una cosa'); return; }
+  const person=PEOPLE[S.cocinaIdx%4];
+  addLog(`Cocina: ${S.cocinaChecked.join(', ')}`,person);
+  S.cocinaIdx++; S.cocinaChecked=[];
+  const nextP=PEOPLE[S.cocinaIdx%4];
+  const msg=`🍳 *Cocina · turno de limpieza*\n\n${EMOJIS[nextP]} *${nextP}*, te toca limpiar lo que quede sin fregar y dejar la encimera y la mesa limpias.\n\n¡Gracias!`;
+  const wEl=document.getElementById('cocina-wa');
+  wEl.href=waLink(msg); wEl.style.display='inline-flex';
+  save(); renderCocina(); toast(`Siguiente en cocina: ${nextP}`);
+}
+function skipCocina(){
+  S.cocinaIdx++; S.cocinaChecked=[]; save(); renderCocina();
+  toast(`Turno pasado a ${PEOPLE[S.cocinaIdx%4]}`);
+}
+
+function renderLog(){
+  if(!S) return;
+  const counts={'Mamá':0,'Andrés':0,'Nico':0,'Pablo':0};
+  S.log.forEach(e=>{ if(counts[e.person]!==undefined) counts[e.person]++; });
+  document.getElementById('stats-row').innerHTML=PEOPLE.map(p=>`<div class="stat-cell">${avatar(p)}<div class="stat-num">${counts[p]}</div><div class="stat-label">${p}</div></div>`).join('');
+  const list=document.getElementById('log-list');
+  if(!S.log.length){ list.innerHTML='<div class="empty">Sin registros aún.</div>'; return; }
+  list.innerHTML=S.log.map(e=>`<div class="log-row"><span class="log-time">${e.time}</span><span class="log-task">${e.task}</span>${badge(e.person)}</div>`).join('');
+}
+function clearLog(){
+  if(!confirm('¿Borrar todo el historial?')) return;
+  S.log=[]; save(); renderLog(); toast('Historial borrado');
+}
+
+initBin();
+</script>
+</body>
+</html>
